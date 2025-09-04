@@ -1,0 +1,6 @@
+html, body, #map { height: 100%; margin: 0; padding: 0; }
+#app { display: grid; grid-template-columns: 3fr 1fr; height: 100vh; }
+#sidebar { padding: 1rem; background: #f9fafb; overflow: auto; }
+button { padding: 0.5rem 1rem; }
+
+
