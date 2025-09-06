@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
 
-from .logging import get_logger
+from .logging import get_logger, configure_logging
 from .config import settings, get_settings
 from .provenance import ProvenanceStore
 from .plugin_loader import load_plugins, get_plugin_by_name
@@ -24,14 +24,39 @@ log = get_logger("ow-tshm")
 
 
 @app.callback()
-def main() -> None:
+def main(
+    
+    log_level: str = typer.Option(
+        os.environ.get("LOG_LEVEL", "INFO"),
+        help="Log level: CRITICAL, ERROR, WARNING, INFO, DEBUG",
+        case_sensitive=False,
+    ),
+    log_format: str = typer.Option(
+        os.environ.get("LOG_FORMAT", "rich"),
+        help="Log format: rich or json",
+        case_sensitive=False,
+    ),
+) -> None:
     load_dotenv()
+    # Configure logging early so subsequent imports/usage benefit
+    try:
+        configure_logging(level=log_level, fmt=log_format)
+    except Exception:
+        # Fall back silently; never fail CLI just due to logging
+        pass
 
 
 @app.command()
 def list_plugins():
     for p in load_plugins():
         rprint(f"- {p.name}")
+
+
+@app.command()
+def version() -> None:
+    from . import __version__
+
+    rprint({"version": __version__})
 
 
 @app.command()
@@ -112,7 +137,13 @@ def export_sqlite(db: str = typer.Argument("forest.db"), dry_run: bool = typer.O
 
 
 @app.command()
-def report(out: str = typer.Argument("reports/latest.html"), use_llm: str = typer.Argument("auto")):
+def report(
+    out: str = typer.Argument("reports/latest.html"),
+    use_llm: str = typer.Argument("auto"),
+    use_agents: bool | None = typer.Option(
+        None, "--use-agents/--no-use-agents", help="Prefer OpenAI Agents/Responses API"
+    ),
+):
     # Build simple summary from demo feats
     s = get_settings()
     feats_path = os.path.join(s.artifacts_dir, "feats.json")
@@ -129,7 +160,7 @@ def report(out: str = typer.Argument("reports/latest.html"), use_llm: str = type
     }
     # Validate metrics schema
     _ = Metrics(**metrics)
-    path = render_report(metrics, out_path=out, use_llm=use_llm)
+    path = render_report(metrics, out_path=out, use_llm=use_llm, use_agents=use_agents)
     rprint(f"Report written to {path}")
     prov = ProvenanceStore(s.provenance_ledger)
     prov.log("report", {"use_llm": use_llm}, [feats_path], [out])
@@ -139,4 +170,3 @@ def report(out: str = typer.Argument("reports/latest.html"), use_llm: str = type
 def dashboard(host: str = "127.0.0.1", port: int = 8000, reload: bool = False):
     import uvicorn  # pragma: no cover
     uvicorn.run("openworld_tshm.dashboard.server:app", host=host, port=port, reload=reload)  # pragma: no cover
-
