@@ -1,4 +1,4 @@
-.PHONY: setup test lint fmt dashboard train build docker
+.PHONY: setup test lint fmt type audit precommit docs docs-serve dashboard train build docker
 
 setup:
 	python -m pip install -e ".[dev]"
@@ -18,6 +18,9 @@ type:
 audit:
 	pip-audit || true
 
+docs:
+	mkdocs build --strict
+
 dashboard:
 	openworld-tshm dashboard --reload
 
@@ -30,3 +33,8 @@ build:
 docker:
 	docker build -t openworld-tshm .
 
+precommit:
+	pre-commit install && pre-commit run --all-files || true
+
+docs-serve:
+	mkdocs serve -a 127.0.0.1:8001

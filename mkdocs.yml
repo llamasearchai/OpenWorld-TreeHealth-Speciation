@@ -1,18 +1,13 @@
 site_name: OpenWorld TSHM Docs
 theme:
-  name: material
+  name: mkdocs
 nav:
   - Home: index.md
+  - User: user.md
+  - Operator: ops.md
+  - Developer: dev.md
+  - Security: security.md
+  - Architecture: architecture.md
   - CLI Usage: cli_usage.md
   - Dashboard Guide: dashboard_guide.md
-  - Architecture: architecture.md
-site_name: OpenWorld TSHM Docs
-nav:
-  - Home: docs/index.md
-  - User: docs/user.md
-  - Operator: docs/ops.md
-  - Developer: docs/dev.md
-  - Security: docs/security.md
-theme:
-  name: mkdocs
 plugins: []
