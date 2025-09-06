@@ -21,6 +21,11 @@ class LidarLaspyPlugin(SensorPlugin):
         - data: np.ndarray (N,3)
         - metadata: dict
         """
+        # Allowlist extensions (.las, .laz, .csv [fallback])
+        src_lower = str(source).lower()
+        allowed = (src_lower.endswith(".las"), src_lower.endswith(".laz"), src_lower.endswith(".csv"))
+        if not any(allowed):
+            raise ValueError("LidarLaspyPlugin accepts only .las, .laz, or .csv (fallback) files")
         # Basic size guard (50MB default)
         max_mb = float(kwargs.get("max_mb", os.environ.get("OW_TSHM_MAX_CSV_MB", 50)))
         try:
