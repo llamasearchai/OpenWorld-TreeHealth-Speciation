@@ -25,5 +25,4 @@ If UI or visual output is relevant, include screenshots or log excerpts.
 
 ## Linked Issues
 
-Closes #<issue-number> or references related issues.
-
+Use GitHub keywords to link issues, for example: Closes #123, Fixes #456.
