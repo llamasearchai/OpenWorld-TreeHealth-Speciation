@@ -75,7 +75,7 @@ pre-commit install
 4. Add tests for new functionality
 5. Ensure all tests pass: `pytest`
 6. Update documentation if needed
-7. Commit your changes: `git commit -m "Add your feature"`
+7. Commit your changes: `git commit -m "Describe the change succinctly"`
 8. Push to your fork: `git push origin feature/your-feature`
 9. Create a Pull Request
 

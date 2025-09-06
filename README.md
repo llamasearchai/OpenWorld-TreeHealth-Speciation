@@ -20,7 +20,7 @@ A comprehensive forest analytics platform that integrates drone/LiDAR imagery, m
 - [Architecture](#architecture)
 - [Contributing](#contributing)
 - [License](#license)
-- [Authors](#authors)
+- [Author](#author)
 
 ## Features
 
@@ -318,9 +318,9 @@ pytest
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Authors
+## Author
 
-- **Nik Jois** - *Initial work and maintenance* - [nikjois@llamasearch.ai](mailto:nikjois@llamasearch.ai)
+- Nik Jois — nikjois@llamasearch.ai
 
 ## Citation
 
