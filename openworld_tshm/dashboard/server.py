@@ -1,8 +1,12 @@
 from __future__ import annotations
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, HTMLResponse
+from starlette.requests import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+import uuid
 import numpy as np
 from ..pointcloud.segmentation import segment_trees
 from ..pointcloud.features import cluster_features
@@ -11,6 +15,40 @@ from ..pointcloud.features import cluster_features
 app = FastAPI(title="OpenWorld TSHM Dashboard")
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Optional CORS support controlled by env var DASHBOARD_CORS_ORIGINS (comma-separated)
+_cors = os.getenv("DASHBOARD_CORS_ORIGINS")
+if _cors:
+    origins = [o.strip() for o in _cors.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
+class _RequestIDMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+        rid = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = rid
+        return response
+
+
+class _SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        # Simple CSP suitable for static content and JSON endpoints
+        response.headers.setdefault("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'")
+        return response
+
+
+app.add_middleware(_RequestIDMiddleware)
+app.add_middleware(_SecurityHeadersMiddleware)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -71,5 +109,3 @@ try:
         return HTMLResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 except Exception:  # pragma: no cover
     pass
-
-
