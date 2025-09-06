@@ -1,8 +1,11 @@
 from __future__ import annotations
 import os, subprocess, json
+from typing import Optional
+from ..config import get_settings
+from .openai_agent import generate_with_openai  # safe to import; resolves dynamically
 
 
-def generate_narrative(summary_inputs: dict, use_llm: str = "auto") -> str:
+def generate_narrative(summary_inputs: dict, use_llm: str = "auto", use_agents: Optional[bool] = None) -> str:
     """
     Generate a narrative report using OpenAI Agents SDK if OPENAI_API_KEY set,
     else try 'llm' CLI with ollama model if installed, else return a deterministic fallback.
@@ -17,16 +20,15 @@ def generate_narrative(summary_inputs: dict, use_llm: str = "auto") -> str:
     )
 
     if use_llm in ("openai", "auto") and os.getenv("OPENAI_API_KEY"):
-        try:  # pragma: no cover - networked branch
-            from openai import OpenAI  # type: ignore  # pragma: no cover
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # pragma: no cover
-            resp = client.chat.completions.create(  # pragma: no cover
-                model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),  # pragma: no cover
-                messages=[{"role": "system", "content": "You are a forestry planning expert."},  # pragma: no cover
-                          {"role": "user", "content": prompt}],  # pragma: no cover
-                temperature=0.2,  # pragma: no cover
+        try:  # pragma: no cover - requires network
+            s = get_settings()
+            return generate_with_openai(
+                prompt,
+                model=s.openai_model,
+                use_agents=(s.openai_use_agents if use_agents is None else use_agents),
+                temperature=0.2,
+                system_instruction="You are a forestry planning expert.",
             )
-            return resp.choices[0].message.content or ""  # pragma: no cover
         except Exception:
             # fall through to other modes or deterministic fallback
             pass  # pragma: no cover
@@ -49,4 +51,3 @@ def generate_narrative(summary_inputs: dict, use_llm: str = "auto") -> str:
         "and replanting at densities suitable for site class II. Regeneration targets should aim "
         "for 85–90% survival at year 3 with supplemental fill-in planting as needed."
     )
-

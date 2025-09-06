@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./OpenWorld-Trees.png" alt="OpenWorld TSHM Logo" width="640" />
+</p>
+
 # OpenWorld Tree Speciation & Health Monitoring
 
 [![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -161,6 +165,35 @@ openworld-tshm export-sqlite --db forest.db
 datasette serve forest.db -m datasette.yml
 ```
 
+### OpenAI Agents Integration
+
+To generate narrative insights with OpenAI’s modern Agents/Responses API (with automatic fallback):
+
+```bash
+pip install -e ".[llm]"
+export OPENAI_API_KEY=sk-...
+# Optional overrides
+export OPENAI_MODEL=gpt-4o-mini
+export OW_TSHM_USE_OAI_AGENTS=true  # prefer Agents/Responses API
+
+# Generate a report using OpenAI
+openworld-tshm report --out reports/latest.html --use-llm openai
+
+# Override per-run to disable Agents and use chat completions
+openworld-tshm report --out reports/latest.html --use-llm openai --no-use-agents
+
+# Or explicitly enable Agents per-run
+openworld-tshm report --out reports/latest.html --use-llm openai --use-agents
+```
+
+Behavior:
+- With `--use-llm openai` and a valid key, the agent prefers the Responses API when enabled, otherwise uses Chat Completions.
+- With `--use-llm auto`, it tries OpenAI if configured; otherwise, a deterministic fallback narrative is used.
+
+## Keywords
+
+- Forestry analytics, LiDAR, CHM, ML, GIS, FastAPI, Datasette, Plugins, Provenance, OpenAI, Agents
+
 ## Architecture
 
 ### System Overview
@@ -308,4 +341,3 @@ If you use this software in your research, please cite:
 - Uses FastAPI for web services and Leaflet for mapping
 - Inspired by open-source geospatial and forestry research tools
 - Thanks to the scientific Python community for excellent libraries
-

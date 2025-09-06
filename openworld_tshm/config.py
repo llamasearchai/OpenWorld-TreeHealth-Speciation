@@ -10,6 +10,7 @@ class Settings:
     provenance_ledger: str = os.getenv("OW_TSHM_PROVENANCE_LEDGER", "./provenance/ledger.jsonl")
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
     openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    openai_use_agents: bool = os.getenv("OW_TSHM_USE_OAI_AGENTS", "true").lower() in {"1", "true", "yes", "on"}
     ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3")
 
 
@@ -19,5 +20,4 @@ settings = Settings()
 def get_settings() -> Settings:
     # Recreate settings to pick up environment changes at runtime
     return Settings()
-
 
