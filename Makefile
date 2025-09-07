@@ -38,3 +38,8 @@ precommit:
 
 docs-serve:
 	mkdocs serve -a 127.0.0.1:8001
+
+tag:
+	@if [ -z "$(VERSION)" ]; then echo "VERSION not set (e.g., make tag VERSION=0.2.1)"; exit 1; fi
+	git tag -a v$(VERSION) -m "Release v$(VERSION)"
+	echo "Created tag v$(VERSION). Push with: git push origin v$(VERSION)"

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Pending changes
+
+## [0.2.1] - 2025-09-07
+
 - Structured logging with JSON or rich formatting; global CLI logging options and `version` command.
 - Dashboard: optional CORS, request ID middleware, and security headers.
 - Plugins: file extension allowlists and size guards.
