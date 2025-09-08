@@ -68,7 +68,7 @@ def ingest(source: str = typer.Argument(...), plugin: str = typer.Option("lidar_
         rprint(f"[red]Source not found:[/red] {source}")
         raise typer.Exit(code=2)
     result = p.ingest(source)
-    rprint({"plugin": plugin, "type": result["type"], "metadata": result.get("metadata", {})})
+    print(json.dumps({"plugin": plugin, "type": result["type"], "metadata": result.get("metadata", {})}))
 
 
 @app.command()
@@ -106,13 +106,24 @@ def process_demo(eps: float = typer.Argument(2.0), min_samples: int = typer.Argu
 
 
 @app.command()
-def train(seed: int = typer.Option(42), out_dir: str = typer.Option("artifacts/run")):
-    cfg = TrainConfig(seed=seed, out_dir=out_dir, save_models=True)
+def train(
+    seed: int = typer.Option(42),
+    out_dir: str = typer.Option("artifacts/run"),
+    model_type: str = typer.Option("basic")
+):
+    cfg = TrainConfig(seed=seed, out_dir=out_dir, save_models=True, model_type=model_type)
     metrics = train_all(cfg)
     # Emit a simple status line that does not start with '{' to avoid JSON parsing in tests
     rprint(f"[green]Training complete[/green] | height_mae={metrics['height_mae']:.4f} species_acc={metrics['species_acc']:.4f}")
     prov = ProvenanceStore(get_settings().provenance_ledger)
     prov.log("train", {"seed": seed, "out_dir": out_dir}, [], [os.path.join(out_dir, "metrics.json")])
+
+
+@app.command()
+def train_experiment(run_name: str, seed: int = typer.Option(42), model_type: str = typer.Option("basic")):
+    cfg = TrainConfig(seed=seed, out_dir=f"artifacts/{run_name}", save_models=True, model_type=model_type, mlflow_experiment=run_name)
+    metrics = train_all(cfg)
+    rprint(f"[green]Experiment {run_name} complete[/green] | height_mae={metrics['mae']:.4f} species_acc={metrics['acc']:.4f}")
 
 
 @app.command()

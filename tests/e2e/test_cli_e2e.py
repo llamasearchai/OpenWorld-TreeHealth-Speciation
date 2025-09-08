@@ -4,6 +4,8 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+import sys
+import json
 
 
 def test_cli_as_subprocess(tmp_path):
@@ -20,7 +22,6 @@ pine,31.2,30,0.82""")
     env = os.environ.copy()
     env["PYTHONPATH"] = str(Path(__file__).parent.parent.parent)
 
-    import sys
     result = subprocess.run([
         sys.executable, "-m", "openworld_tshm",
         "ingest", "--plugin", "field_csv", str(csv_path)
@@ -28,7 +29,8 @@ pine,31.2,30,0.82""")
 
     assert result.returncode == 0
     assert "field" in result.stdout
-    assert str(csv_path) in result.stdout
+    data = json.loads(result.stdout)
+    assert data['metadata']['source'] == str(csv_path)
 
 
 def test_dashboard_startup_and_health(tmp_path):
@@ -84,7 +86,7 @@ def test_full_workflow_via_cli(tmp_path):
     # Export SQLite
     db_path = tmp_path / "forest.db"
     result = subprocess.run([
-        sys.executable, "-m", "openworld_tshm", "export-sqlite", "--db", str(db_path)
+        sys.executable, "-m", "openworld_tshm", "export-sqlite", str(db_path)
     ], capture_output=True, text=True, env=env, cwd=tmp_path)
 
     assert result.returncode == 0
@@ -93,8 +95,7 @@ def test_full_workflow_via_cli(tmp_path):
     # Generate report
     report_path = tmp_path / "report.html"
     result = subprocess.run([
-        sys.executable, "-m", "openworld_tshm", "report",
-        "--out", str(report_path), "--use-llm", "fallback"
+        sys.executable, "-m", "openworld_tshm", "report", str(report_path), "fallback"
     ], capture_output=True, text=True, env=env, cwd=tmp_path)
 
     assert result.returncode == 0
