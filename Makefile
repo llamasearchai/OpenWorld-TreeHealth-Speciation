@@ -1,3 +1,38 @@
+PY=python3
+PIP=pip
+UVICORN=uvicorn
+APP=openworld_treehealth.app:app
+
+.PHONY: install dev test run lint format docker-build docker-run
+
+install:
+	$(PY) -m venv .venv && . .venv/bin/activate && \
+	python -m pip install -U pip && \
+	pip install -e .
+
+dev:
+	$(PY) -m venv .venv && . .venv/bin/activate && \
+	python -m pip install -U pip && \
+	pip install -e ".[dev]"
+
+test:
+	. .venv/bin/activate && pytest -q
+
+run:
+	. .venv/bin/activate && $(UVICORN) $(APP) --host 0.0.0.0 --port 8000 --reload
+
+lint:
+	. .venv/bin/activate && ruff check .
+
+format:
+	. .venv/bin/activate && ruff format .
+
+docker-build:
+	docker build -t openworld-treehealth:latest .
+
+docker-run:
+	docker run --rm -p 8000:8000 --env-file .env openworld-treehealth:latest
+
 .PHONY: setup test lint fmt type audit precommit docs docs-serve dashboard train build docker clean
 
 setup:

@@ -1,6 +1,0 @@
-{
-  "height_mae": 5.74504453660188,
-  "species_acc": 0.98,
-  "height_model_path": "test_artifacts/height_model.pkl",
-  "species_model_path": "test_artifacts/species_model.pkl"
-}

@@ -1,3 +1,42 @@
+## OpenWorld Tree Health & Speciation API
+
+Production-ready FastAPI service for tree health assessment, species classification, and AI-assisted diagnosis using OpenAI.
+
+### Features
+- Health check endpoint
+- Rule-based species classification
+- OpenAI-powered diagnosis endpoint (Responses API)
+- Config via environment variables
+- Tests with pytest and httpx
+- Dockerized with multi-stage build
+- Makefile for common tasks
+
+### Quickstart
+1. Create and populate `.env` from `.env.example`.
+2. Install and run tests:
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -U pip
+pip install -e ".[dev]"
+pytest -q
+```
+3. Run the API:
+```bash
+uvicorn openworld_treehealth.app:app --reload
+```
+
+### Docker
+```bash
+make docker-build
+make docker-run
+```
+
+### Environment
+Provide `OPENAI_API_KEY` to enable the diagnosis endpoint. Without a key, the endpoint returns a 503 error.
+
+### Author
+Nik Jois <nikjois@llamasearch.ai>
+
 <p align="center">
   <img src="./OpenWorld-Trees.png" alt="OpenWorld TSHM Logo" width="640" />
 </p>
